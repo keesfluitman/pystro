@@ -11,6 +11,7 @@ WORKDIR /home/pystro
 
 RUN python -m venv venv
 
+
 COPY requirements requirements
 
 RUN venv/bin/pip install -r requirements/docker.txt

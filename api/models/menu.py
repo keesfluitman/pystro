@@ -11,7 +11,7 @@ class Item(ContentModel):
     modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     image_url = db.Column(db.String(140))
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.Float, nullable=False) 
 
     def __repr__(self):
         return '<Item {}>'.format(self.title)

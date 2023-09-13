@@ -6,7 +6,7 @@ from flask_restful import Resource, reqparse
 from sqlalchemy.exc import IntegrityError
 
 from api.models.order import Order, OrderItem, ORDER_PAID, \
-                                     ORDER_PENDING
+    ORDER_PENDING
 from api.database import db
 from api.models.menu import Item
 from api.auth import current_identity, only_manager, authenticated_user
@@ -24,11 +24,11 @@ class OrdersAPI(Resource):
     def get(self):
         return Order.find_by_restaurant_id(get_current_restaurant().id)
 
-
     @authenticated_user()
     def post(self):
         """ creates an order """
-        self.reqparse.add_argument('items', location='json', type=dict, action='append')
+        self.reqparse.add_argument(
+            'items', location='json', type=dict, action='append')
         data = self.reqparse.parse_args()
         try:
             order = Order()
@@ -45,10 +45,13 @@ class OrdersAPI(Resource):
                 if dbitem.restaurant_id != order.restaurant_id:
                     raise IntegrityError
                 db.session.add(order_item)
-            db.session.commit()               
-            send_email('New Order on Pystro!',
-                       [mng.email for mng in rest.managers],
-                       'Nice!')
+            db.session.commit()
+            try:
+                send_email('New Order on Pystro!',
+                           [mng.email for mng in rest.managers],
+                           'Nice!')
+            except Exception as e:
+                print(f"Email error: {e}")
 
             return order.serializable(), 201
         except IntegrityError as e:
@@ -57,7 +60,7 @@ class OrdersAPI(Resource):
 
     @only_manager()
     def put(self):
-        """ confirms an order """
+        """! Would be better as EDITING of orders !! confirms an order """
         self.reqparse.add_argument('order_id', type=int, location='json')
         data = self.reqparse.parse_args()
         try:

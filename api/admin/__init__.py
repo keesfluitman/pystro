@@ -6,6 +6,7 @@ from flask import current_app, Blueprint
 from flask_restful import Api
 
 from .restaurant import RestaurantsAPI, RestaurantAPI
+from auth import LoginResource
 
 
 def setup_admin_api_routes(app):
@@ -14,4 +15,5 @@ def setup_admin_api_routes(app):
     api.add_resource(RestaurantsAPI, '/restaurants', endpoint='restaurantsapi')
     api.add_resource(RestaurantAPI, '/restaurant/<int:id>',
                      endpoint='restaurantapi')
+    api.add_resource(LoginResource, "/login")
     app.register_blueprint(api_bp, url_prefix='/admin')

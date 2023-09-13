@@ -9,19 +9,20 @@ class Config(object):
     CSRF_ENABLED = True
     JWT_SECRET_KEY = 'super-secret'
     JWT_ALG = 'HS256'
-    JWT_EXPIRATION_DELTA = timedelta(seconds=3600) # one hour
+    JWT_EXPIRATION_DELTA = timedelta(seconds=3600)  # one hour
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = 'localhost'
     MAIL_PORT = 8025
     MAIL_USERNAME = None
-    MAIL_PASSWORD = None    
-    MAIL_SENDER = 'support@pystro.com'        
-    
+    MAIL_PASSWORD = None
+    MAIL_SENDER = 'support@pystro.com'
+    SECRET_KEY = 'your_super_secret_key'
 
 
 class DevelopmentConfig(Config):
-    DEBUG = True    
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///pystro.db'
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL') or 'sqlite:///pystro.db'
 
 
 class TestConfig(Config):
@@ -35,7 +36,8 @@ class HerokuConfig(Config):
     MAIL_PORT = 587
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///pystro.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL') or 'sqlite:///pystro.db'
 
 
 class ProductionConfig(object):

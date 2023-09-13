@@ -6,17 +6,19 @@ from api.models import BaseModel
 from api.models.menu import Item
 
 
-ORDER_PENDING=1
-ORDER_CONFIRMED=2
-ORDER_PAID=3
-ORDER_CANCELED=4
-ORDER_REJECTED=5
+ORDER_PENDING = 1
+ORDER_CONFIRMED = 2
+ORDER_PAID = 3
+ORDER_CANCELED = 4
+ORDER_REJECTED = 5
 
 
 class Order(BaseModel):
     state = db.Column(db.Integer, default=ORDER_PENDING)
     expected_time_arrival = db.Column(db.DateTime)
     orderitems = db.relationship("OrderItem", backref="order")
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def total_price(self):
         if not self.orderitems:

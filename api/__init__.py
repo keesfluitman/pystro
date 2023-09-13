@@ -16,10 +16,18 @@ from api.admin import setup_admin_api_routes
 from api.public import setup_public_api_routes
 from api.restaurants import register_restaurants_blueprints
 
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from dashboard.admin_models import OrderAdmin, ItemModelView, SectionModelView, RestaurantModelView
+import sys
+
+import logging
+
 
 def create_app(pconfig=None, debug=False):
     app = Flask(__name__)
     app.debug = debug
+    logging.basicConfig(filename='pystro.log', level=logging.DEBUG)
     configobj = pconfig or \
         os.environ.get('PYSTRO_SETTINGS') or \
         defaultconfig
@@ -39,6 +47,7 @@ def create_app(pconfig=None, debug=False):
     setup_public_api_routes(app)
     JWT(app, authenticate, identity)
     register_restaurants_blueprints(app)
+
     return app
 
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routes</title>
+</head>
+<body>
+    <h1>Available Routes</h1>
+    <ul>
+        {% for route in routes %}
+            <li>{{ route }}</li>
+        {% endfor %}
+    </ul>
+    
+<h2>Environment Variables</h2>
+<ul>
+{% for key, value in env_vars.items() %}
+    <li><strong>{{ key }}:</strong> {{ value }}</li>
+{% endfor %}
+</ul>
+</body>
+</html>
