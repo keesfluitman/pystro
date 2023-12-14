@@ -9,9 +9,10 @@ from api.models.order import Order, OrderItem, ORDER_PAID, \
     ORDER_PENDING
 from api.database import db
 from api.models.menu import Item
-from api.auth import current_identity, only_manager, authenticated_user
+from api.auth import only_manager, authenticated_user
 from api.email import send_email
 from api.utils import get_current_restaurant
+from flask_jwt_extended import current_user
 
 
 class OrdersAPI(Resource):
@@ -32,7 +33,7 @@ class OrdersAPI(Resource):
         data = self.reqparse.parse_args()
         try:
             order = Order()
-            order.created_by = current_identity.id
+            order.created_by = current_user.id
             order.state = ORDER_PENDING
             rest = get_current_restaurant()
             order.restaurant_id = rest.id

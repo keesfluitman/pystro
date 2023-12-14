@@ -2,11 +2,10 @@ import os
 from datetime import datetime
 
 from flask import Flask
-from flask_jwt import JWT
+from flask_jwt_extended import JWTManager
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import ObjectDeletedError
 
-from api.auth import authenticate, identity
 from api.database import db
 from api.config import defaultconfig
 from api.models.user import User
@@ -20,6 +19,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from dashboard.admin_models import OrderAdmin, ItemModelView, SectionModelView, RestaurantModelView
 import sys
+from .extensions import jwt
 
 import logging
 
@@ -44,8 +44,8 @@ def create_app(pconfig=None, debug=False):
             db.session.rollback()
             db.session.remove()
     setup_admin_api_routes(app)
+    jwt.init_app(app)
     setup_public_api_routes(app)
-    JWT(app, authenticate, identity)
     register_restaurants_blueprints(app)
 
     return app

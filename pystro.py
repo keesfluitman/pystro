@@ -15,11 +15,11 @@ from dashboard.admin_models import OrderAdmin, ItemModelView, SectionModelView, 
 import os
 from flask import jsonify
 
+
 import logging
 
 app = create_app(debug=True)
 CORS(app)
-
 
 app.static_folder = '/home/mint/Websites/test/smartlunch-client'
 app.template_folder = '../smartlunch-client/src'

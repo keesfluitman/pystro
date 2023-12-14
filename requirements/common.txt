@@ -2,7 +2,7 @@ Flask
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-RESTful
-Flask-JWT
+Flask-JWT-Extended
 Flask-Testing
 Flask-Mail
 Flask-Cors

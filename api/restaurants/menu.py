@@ -7,7 +7,8 @@ from sqlalchemy.exc import IntegrityError
 
 from api.models.menu import Item, Section
 from api.database import db
-from api.auth import only_manager, current_identity
+from api.auth import only_manager
+from flask_jwt_extended import get_jwt_identity, current_user
 from api.utils import get_current_restaurant
 
 
@@ -47,7 +48,7 @@ class ItemsAPI(Resource):
         data = self.reqparse.parse_args()
         try:
             item = Item(**data)
-            item.created_by = current_identity.id
+            item.created_by = current_user.id
             item.restaurant_id = get_current_restaurant().id
             db.session.add(item)
             db.session.commit()
@@ -96,7 +97,7 @@ class ItemAPI(Resource):
             data = self.reqparse.parse_args()
             for k, v in data.items():
                 setattr(item, k, v)
-            item.modified_by = current_identity.id
+            item.modified_by = current_user.id
             db.session.add(item)
             db.session.commit()
             return item.serializable(), 200
@@ -119,7 +120,7 @@ class SectionsAPI(Resource):
         data = self.reqparse.parse_args()
         try:
             sec = Section(**data)
-            sec.created_by = current_identity.id
+            sec.created_by = current_user.id
             db.session.add(sec)
             db.session.commit()
             return sec.serializable(), 201
@@ -167,7 +168,7 @@ class SectionAPI(Resource):
             data = self.reqparse.parse_args()
             for k in data.keys():
                 setattr(sec, k, data[k])
-            sec.modified_by = current_identity.id
+            sec.modified_by = current_user.id
             db.session.add(sec)
             db.session.commit()
             return sec.serializable(), 200

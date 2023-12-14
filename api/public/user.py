@@ -3,6 +3,7 @@
 """
 from flask import current_app
 from flask_restful import Resource, reqparse
+from flask_jwt_extended import current_user
 
 from sqlalchemy.exc import IntegrityError
 
@@ -11,7 +12,6 @@ import jwt
 from api.models.user import User
 from api.database import db
 from api.auth import only_admin, authenticated_user
-from api.auth import current_identity
 from api.email import send_email
 
 
@@ -60,9 +60,9 @@ class UsersAPI(Resource):
             db.session.add(user)
             db.session.commit()
             activation_token = jwt.encode(
-                            {'user_email': data['email']},
-                            current_app.config['JWT_SECRET_KEY'],
-                            current_app.config['JWT_ALGORITHM']).decode("utf-8")     
+                {'user_email': data['email']},
+                current_app.config['JWT_SECRET_KEY'],
+                current_app.config['JWT_ALGORITHM']).decode("utf-8")
             send_email('Complete yor registration on Pystro.', data['email'],
                        'Clique em base_url/?token='+activation_token)
             return user.serializable(), 201
@@ -81,9 +81,9 @@ class UsersAPI(Resource):
         try:
             user = User.find_by_email(data['email'])
             token = str(jwt.encode(
-                            {'user_email': data['email']},
-                                current_app.config['JWT_SECRET_KEY'],
-                                current_app.config['JWT_ALGORITHM']))
+                {'user_email': data['email']},
+                current_app.config['JWT_SECRET_KEY'],
+                current_app.config['JWT_ALGORITHM']))
             if not user:
                 return "User not created yet.", 400
             if not user.is_activated():
@@ -91,13 +91,13 @@ class UsersAPI(Resource):
                         not data['activation_token']:
                     return 'token not sent.', 401
                 if not user.activate(data['activation_token']):
-                    return 'token '+ data['activation_token'] +' is invalid.', 403
+                    return 'token ' + data['activation_token'] + ' is invalid.', 403
             password = data['password']
-            del(data['password'])
-            del(data['activation_token'])
+            del (data['password'])
+            del (data['activation_token'])
             for key in data.keys():
                 setattr(user, key, data[key])
-            user.set_password(password)            
+            user.set_password(password)
             db.session.add(user)
             db.session.commit()
         except IntegrityError as e:
@@ -128,8 +128,8 @@ class UserAPI(Resource):
         user = User.find_by_id(id)
         if not user:
             return "User not found", 404
-        elif current_identity.id != id  \
-                and not current_identity.is_admin:
+        elif current_user.id != id  \
+                and not current_user.is_admin:
             return "Forbidden", 403
         else:
             return user.serializable(), 200
@@ -139,8 +139,8 @@ class UserAPI(Resource):
         user = User.find_by_id(id)
         if not user:
             return "User not found", 404
-        elif current_identity.id != id  \
-                and not current_identity.is_admin:
+        elif current_user.id != id  \
+                and not current_user.is_admin:
             return "Forbidden", 403
         else:
             data = self.reqparse.parse_args()
@@ -175,12 +175,12 @@ class ResetPasswordAPI(Resource):
         user = User.find_by_email(data['email'])
         if not user:
             return "User not found", 404
-        if not user.is_activated():     
-            return "User is not activated yet.", 403        
+        if not user.is_activated():
+            return "User is not activated yet.", 403
         token = jwt.encode(
-                           {'user_email': data['email']},
-                            current_app.config['JWT_SECRET_KEY'],
-                            current_app.config['JWT_ALGORITHM']).decode('utf-8')
+            {'user_email': data['email']},
+            current_app.config['JWT_SECRET_KEY'],
+            current_app.config['JWT_ALGORITHM']).decode('utf-8')
         user.reset_pw_token = token
         try:
             db.session.add(user)

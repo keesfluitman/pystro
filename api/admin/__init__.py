@@ -6,7 +6,7 @@ from flask import current_app, Blueprint
 from flask_restful import Api
 
 from .restaurant import RestaurantsAPI, RestaurantAPI
-from auth import LoginResource
+from api.auth import LoginResource
 
 
 def setup_admin_api_routes(app):

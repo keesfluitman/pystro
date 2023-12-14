@@ -2,14 +2,26 @@
 This module implements authentication and authorization features
 """
 from functools import wraps
-
 from flask import abort, request
-from flask_jwt import current_identity, _jwt_required
-from flask_jwt_extended import create_access_token
-from flask_restful import Resource
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity,
+    current_user,
+    create_access_token,
+    JWTManager,
+)
 
+from flask_restful import Resource
 from .models.user import User
 from .utils import get_current_restaurant
+from werkzeug.security import check_password_hash
+from .extensions import jwt
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
 
 
 class LoginResource(Resource):
@@ -19,17 +31,17 @@ class LoginResource(Resource):
 
         # Validate the login information
         email = data.get("email")
-        username = User.find_by_email(email)
+        user = User.find_by_email(email)
         password = data.get("password")
-        if not username or not password:
+        if not user or not password:
             return {"message": "Missing username or password"}, 400
-        # Replace this with your own logic or database query
-        user = User.find_by_username(username)
-        if not user or user.password != password:
+
+        # Check the password
+        if not check_password_hash(user.password_hash, password):
             return {"message": "Invalid username or password"}, 401
 
         # Generate a JWT for the user identity
-        access_token = create_access_token(identity=username)
+        access_token = create_access_token(identity=user.id)
 
         # Return the JWT as part of the response body
         return {"message": "Login successful", "access_token": access_token}, 200
@@ -38,21 +50,20 @@ class LoginResource(Resource):
 def authenticate(email, password):
     user = User.find_by_email(email)
     if user and user.check_password(password):
-        return user
+        return create_access_token(identity=user.id)
 
 
 def identity(payload):
     user_id = payload['identity']
-    user = User.find_by_id(user_id)
-    return user
+    return User.find_by_id(user_id)
 
 
 def authenticated_user():
     def wrapper(fn):
         @wraps(fn)
+        @jwt_required()
         def decorator(*args, **kwargs):
-            _jwt_required(None)
-            if current_identity.is_activated():
+            if current_user and current_user.is_activated():
                 return fn(*args, **kwargs)
             return abort(403)
         return decorator
@@ -62,9 +73,9 @@ def authenticated_user():
 def only_admin():
     def wrapper(fn):
         @wraps(fn)
+        @jwt_required()
         def decorator(*args, **kwargs):
-            _jwt_required(None)
-            if current_identity.is_activated() and current_identity.is_admin:
+            if current_user and current_user.is_activated() and current_user.is_admin:
                 return fn(*args, **kwargs)
             return abort(403)
         return decorator
@@ -74,12 +85,10 @@ def only_admin():
 def only_manager():
     def wrapper(fn):
         @wraps(fn)
+        @jwt_required()
         def decorator(*args, **kwargs):
-            _jwt_required(None)
             restaurant = get_current_restaurant()
-            if current_identity.is_activated() and \
-                    ((current_identity.is_admin) or
-                     current_identity.is_manager_of(restaurant)):
+            if current_user.is_activated() and ((current_user.is_admin) or current_user.is_manager_of(restaurant)):
                 return fn(*args, **kwargs)
             return abort(403)
         return decorator
