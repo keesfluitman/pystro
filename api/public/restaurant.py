@@ -1,6 +1,6 @@
-from flask_restful import Resource
+from flask_restx import Resource
 
-from api.auth import  authenticated_user
+from api.auth import authenticated_user
 from api.models.restaurant import Restaurant
 
 

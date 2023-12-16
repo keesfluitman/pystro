@@ -17,9 +17,9 @@ nameArg = reqparse.Argument(name='name', type=str,
                             help='name of restaurant',
                             location='json')
 cnameArg = reqparse.Argument(name='cname', type=str,
-                                 required=True,
-                                 help='canonical name of restaurant',
-                                 location='json')                            
+                             required=True,
+                             help='canonical name of restaurant',
+                             location='json')
 phoneArg = reqparse.Argument(name='phone', type=str,
                              required=True,
                              help='phone of restaurant',

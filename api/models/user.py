@@ -18,7 +18,7 @@ class User(BaseModel):
     email = db.Column(db.String(140), index=True, unique=True)
     name = db.Column(db.String(140), index=True)
     phone = db.Column(db.String(140))
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(256))
     activated_on = db.Column(db.DateTime)
     name = db.Column(db.String(140), nullable=True)
     profile_url = db.Column(db.String(220), nullable=True)
@@ -33,7 +33,7 @@ class User(BaseModel):
 
     def is_manager_of(self, restaurant):
         return restaurant.id in [rst.id
-                              for rst in self.manages]
+                                 for rst in self.manages]
 
     def activate(self, token):
         if self.is_activated():
